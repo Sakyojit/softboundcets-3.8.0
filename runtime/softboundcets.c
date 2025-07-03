@@ -1,43 +1,4 @@
-//=== softboundcets.c - Creates the main function for SoftBound+CETS Runtime --*- C -*===//
-// Copyright (c) 2015 Santosh Nagarakatte. All rights reserved.
 
-// Developed by: Santosh Nagarakatte, Rutgers University
-//               http://www.cs.rutgers.edu/~santosh.nagarakatte/softbound/
-
-// The  SoftBoundCETS project had contributions from:
-// Santosh Nagarakatte, Rutgers University,
-// Milo M K Martin, University of Pennsylvania,
-// Steve Zdancewic, University of Pennsylvania,
-// Jianzhou Zhao, University of Pennsylvania
-
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal with the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-//   1. Redistributions of source code must retain the above copyright notice,
-//      this list of conditions and the following disclaimers.
-
-//   2. Redistributions in binary form must reproduce the above copyright
-//      notice, this list of conditions and the following disclaimers in the
-//      documentation and/or other materials provided with the distribution.
-
-//   3. Neither the names of its developers nor the names of its
-//      contributors may be used to endorse or promote products
-//      derived from this software without specific prior written
-//      permission.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// WITH THE SOFTWARE.
-//===---------------------------------------------------------------------===//
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -75,27 +36,15 @@ void* malloc_address = NULL;
 
 __SOFTBOUNDCETS_NORETURN void __softboundcets_abort()
 {
-  fprintf(stderr, "\nSoftboundcets: Memory safety violation detected\n\nBacktrace:\n");
-
-  // Based on code from the backtrace man page
-  size_t size;
-  void *array[100];
-  
-#if !defined (__FreeBSD__)
-  size = backtrace(array, 100);
-  backtrace_symbols_fd(array, size, fileno(stderr));
-#endif
-  
-  fprintf(stderr, "\n\n");
-
+  fprintf(stderr, "Softboundcets: Memory safety violation detected\n");
   abort();
 }
 
+
 static int softboundcets_initialized = 0;
 
-__NO_INLINE void __softboundcets_stub(void) {
-  return;
-}
+__NO_INLINE void __softboundcets_stub(void) { return; }
+
 void __softboundcets_init(void) 
 {
   if (softboundcets_initialized != 0) {
@@ -271,16 +220,13 @@ int main(int argc, char **argv){
 
   }
 
-  //  printf("before init_ctype\n");
+
   softboundcets_init_ctype();
 
-  /* Santosh: Real Nasty hack because C programmers assume argv[argc]
-   * to be NULL. Also this NUll is a pointer, doing + 1 will make the
-   * size_of_type to fail
-   */
+
   temp_ptr = ((char*) &new_argv[argc]) + 8;
 
-  /* &new_argv[0], temp_ptr, argv_key, argv_loc * the metadata */
+
 
   __softboundcets_allocate_shadow_stack_space(2);
 
@@ -291,7 +237,7 @@ int main(int argc, char **argv){
 
 #elif __SOFTBOUNDCETS_TEMPORAL
 
-  //  printf("before writing to shadow stack\n");
+ 
   __softboundcets_store_key_shadow_stack(argv_key, 1);
   __softboundcets_store_lock_shadow_stack(argv_loc, 1);
 
@@ -311,7 +257,7 @@ int main(int argc, char **argv){
 
 #endif
   
-  //  printf("before calling program main\n");
+
   return_value = softboundcets_pseudo_main(argc, new_argv);
   __softboundcets_deallocate_shadow_stack_space();
 
